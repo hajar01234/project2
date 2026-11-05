@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Movies</title>
+</head>
+<body>
+
+    <h1>All Movies</h1>
+
+    <% movies.forEach((movie, index) => { %>
+
+        <div class="movie" style=" <%= index === 0 ? '' : 'display: none;' %>">
+
+            <img src="<%= movie.poster %>" alt="<%= movie.title %>" width="150">
+
+            <h2><%= movie.title %></h2>
+
+            <p><%= movie.description %></p>
+
+            <p>Genre: <%= movie.genre %></p>
+
+            <p>Duration: <%= movie.duration %> minutes</p>
+
+            <p>Language: <%= movie.language %></p>
+
+            <p>Age Rating: <%= movie.agerating %></p>
+
+            <p>Price: <%= movie.price %> BHD</p>
+
+            <p>Cast: <%= movie.cast.join(", ") %></p>
+
+            <a href="/movies/<%= movie._id %>">
+    <button>View Details</button>
+</a>
+
+        </div>
+
+    <% }) %>
+
+    <button id="prevBtn">Previous</button>
+    <button id="nextBtn">Next</button>
+
+    <script src="/js/movies.js"></script>
+
+</body>
+</html>
