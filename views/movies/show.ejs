@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= movie.title %></title>
+</head>
+<body>
+
+    <h1><%= movie.title %></h1>
+
+    <img src="<%= movie.poster %>" alt="<%= movie.title %>" width="200">
+
+    <p><%= movie.description %></p>
+
+    <p>Genre: <%= movie.genre %></p>
+
+    <p>Duration: <%= movie.duration %> minutes</p>
+
+    <p>Language: <%= movie.language %></p>
+
+    <p>Age Rating: <%= movie.agerating %></p>
+
+    <p>Price: <%= movie.price %> BHD</p>
+
+    <p>Cast: <%= movie.cast.join(", ") %></p>
+
+    <h2>Showtimes</h2>
+
+    <% movie.showtimes.forEach(showtime => { %>
+
+        <div>
+            <p>Date: <%= showtime.date.toDateString() %></p>
+
+            <p>Time: <%= showtime.time %></p>
+
+            <button>Select Showtime</button>
+        </div>
+
+        <hr>
+
+    <% }) %>
+
+    <a href="/movies">Back to Movies</a>
+
+</body>
+</html>
