@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviews - CineBook</title>
+    <link rel="stylesheet" href="/css/style.css">
+
+</head>
+
+<body>
+
+    <%- include('../partials/navbar') %>
+        <div class="reviews-container">
+
+
+            <h1>Movie Reviews</h1>
+
+            <p>Select a movie to see its reviews.</p>
+            <div class="reviews-grid">
+
+
+                <% movies.forEach(movie=> { %>
+
+                    <div class="review-movie-card">
+                        <img src="<%= movie.poster %>" alt="<%= movie.title %>" width="150">
+
+                        <h2>
+                            <%= movie.title %>
+                        </h2>
+
+                        <a href="/reviews/<%= movie._id %>">View Reviews</a>
+                    </div>
+
+                    <% }) %>
+            </div>
+
+        </div>
+
+</body>
+
+</html>
