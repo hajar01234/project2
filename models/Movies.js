@@ -20,9 +20,8 @@ const moviesSchema = new mongoose.Schema({
     type: String,
   },
   showtimes: [{
-    date: Date,
-    time: String,
-    day: { type: String, enum: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] }
+      date: Date,
+      time: String,
   }],
   language: {
     type: String,
