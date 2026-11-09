@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Reviews</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <%- include('../partials/navbar') %>
+        <div class="review-details-container">
+
+            <h1>
+                <%= movie.title %> - Reviews
+            </h1>
+
+            <h2>All Reviews</h2>
+
+            <% if (reviews.length===0) { %>
+
+                <p>No reviews yet.</p>
+
+                <% } else { %>
+
+                    <% reviews.forEach(review=> { %>
+
+                        <div class="review-card">
+                            <h3>
+                                <%= review.user?.username || "Unknown User" %>
+                            </h3>
+
+                            <p>Rating: <%= review.rating %> ⭐</p>
+
+                            <p>
+                                <%= review.comment %>
+                            </p>
+                            <% if (review.user && user && review.user._id.toString()===user._id.toString()) { %>
+
+                                <button type="button" class="edit-review-btn"
+                                    onclick="editReview('<%= review._id %>')">Edit Review</button>
+                                <button type="button" class="delete-review-btn"
+                                    onclick="openDeletePopup('<%= review._id %>')">Delete Review</button>
+
+                                <div id="editForm-<%= review._id %>" class="edit-review-form" hidden>
+                                    <h3>Edit Review</h3>
+
+                                    <select id="rating-<%= review._id %>">
+                                        <% for (let i=1; i <=5; i++) { %>
+                                            <option value="<%= i %>" <%=review.rating===i ? 'selected' : '' %>>
+                                                <%= i %> ⭐
+                                            </option>
+                                            <% } %>
+                                    </select>
+
+                                    <textarea id="comment-<%= review._id %>"><%= review.comment %></textarea>
+
+                                    <button type="button" onclick="saveReview('<%= review._id %>')">
+                                        Save
+                                    </button>
+
+                                    <button type="button" onclick="editReview('<%= review._id %>')">
+                                        Cancel
+                                    </button>
+
+                                </div>
+
+                                <% } %>
+                        </div>
+                        <% }) %>
+
+                            <% } %>
+                                <div class="write-review-card">
+                                    <form action="/reviews/<%= movie._id %>" method="POST">
+
+                                        <label for="rating">Rating:</label>
+
+                                        <select name="rating" id="rating" required>
+                                            <option value="">Select Rating</option>
+                                            <option value="1">⭐ 1</option>
+                                            <option value="2">⭐⭐ 2</option>
+                                            <option value="3">⭐⭐⭐ 3</option>
+                                            <option value="4">⭐⭐⭐⭐ 4</option>
+                                            <option value="5">⭐⭐⭐⭐⭐ 5</option>
+                                        </select>
+
+                                        <br><br>
+
+                                        <label for="comment">Comment:</label>
+
+                                        <textarea name="comment" id="comment" required></textarea>
+
+                                        <br><br>
+
+                                        <button type="submit">Submit Review</button>
+
+                                    </form>
+                                </div>
+
+                                <a href="/reviews">Back to Reviews</a>
+        </div>
+        <script>
+            function editReview(reviewId) {
+                const form = document.getElementById(`editForm-${reviewId}`);
+if (form.hidden === true) {
+    form.hidden = false;
+} else {
+    form.hidden = true;
+}            }
+
+            async function saveReview(reviewId) {
+                const rating = document.getElementById(`rating-${reviewId}`).value;
+                const comment = document.getElementById(`comment-${reviewId}`).value;
+
+                try {
+                    const response = await fetch(`/reviews/${reviewId}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ rating, comment })
+                    });
+
+                    const result = await response.json();
+
+                    showReviewPopup(result.message, response.ok);
+
+                } catch (error) {
+                    showReviewPopup("Something went wrong", false);
+                }
+            }
+
+            function showReviewPopup(message, success) {
+                const popup = document.getElementById("reviewPopup");
+                const popupMessage = document.getElementById("reviewPopupMessage");
+
+                popupMessage.textContent = message;
+                popup.style.display = "flex";
+
+                popup.dataset.success = success;
+            }
+
+            function closeReviewPopup() {
+                const popup = document.getElementById("reviewPopup");
+
+                popup.style.display = "none";
+
+                if (popup.dataset.success === "true") {
+                    window.location.reload();
+                }
+            }
+            let reviewToDelete = null;
+
+            function openDeletePopup(reviewId) {
+                reviewToDelete = reviewId;
+
+                document.getElementById("deletePopup").style.display = "flex";
+            }
+
+            function closeDeletePopup() {
+                reviewToDelete = null;
+
+                document.getElementById("deletePopup").style.display = "none";
+            }
+
+            async function deleteReview() {
+                if (!reviewToDelete) return;
+
+                try {
+                    const response = await fetch(`/reviews/${reviewToDelete}`, {
+                        method: "DELETE"
+                    });
+
+                    const result = await response.json();
+
+                    closeDeletePopup();
+
+                    showReviewPopup(result.message, response.ok);
+
+                } catch (error) {
+                    closeDeletePopup();
+
+                    showReviewPopup("Something went wrong", false);
+                }
+            }
+        </script>
+
+       <div id="reviewPopup" class="review-popup">
+
+            <div class="popup-card">
+                <p id="reviewPopupMessage"></p>
+
+                <button type="button" onclick="closeReviewPopup()">
+                    Done
+                </button>
+
+            </div>
+        </div>
+
+       <div id="deletePopup" class="delete-popup">
+
+<div class="delete-popup-content">
+                    <div class="popup-card">
+
+                    <h3>Delete Review?</h3>
+
+                    <p>Are you sure you want to delete this review?</p>
+
+                    <button type="button" onclick="deleteReview()">
+                        Yes, Delete
+                    </button>
+
+                    <button type="button" onclick="closeDeletePopup()">
+                        Cancel
+                    </button>
+                </div>
+
+            </div>
+        </div>
+</body>
+
+</html>
