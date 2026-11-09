@@ -4,9 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sign Up</title>
+        <link rel="stylesheet" href="/css/style.css">
+
   </head>
   <body>
     <%- include('../partials/navbar') %>
+      <div class="auth-container">
+        <div class="auth-card">
     <h1>Create a new account!</h1>
     <form action="/auth/sign-up" method="post">
       <label for="username">Username:</label>
@@ -15,9 +19,9 @@
       <input type="password" name="password" id="password" />
       <label for="confirmPassword">Confirm Password:</label>
       <input type="password" name="confirmPassword" id="confirmPassword" />
-      <label for="age">Age:</label>
-      <input type="number" name="age" id="age" />
       <button type="submit">Sign up</button>
     </form>
+    </div>
+    </div>
   </body>
 </html>
