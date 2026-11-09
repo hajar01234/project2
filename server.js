@@ -15,11 +15,14 @@ const passUserToView = require("./middleware/pass-user-to-view.js");
 // routes Imports
 const authController = require("./routes/auth.routes.js");
 const indexController = require("./routes/index.routes.js");
-
+const moviesController = require("./routes/movies.routes.js");
+const bookingsController = require("./routes/bookings.routes.js");
+const reviewsController = require("./routes/reviews.routes.js");
 
 // Middleware
 app.use(express.static('public')) // my app will serve all static files from public folder
 app.use(express.urlencoded({ extended: false }));
+app.use(express.static("public"));
 app.use(morgan('dev'))
 app.use(methodOverride('_method'))
 app.use(
@@ -40,7 +43,7 @@ app.use(
   })
 );
 app.use(passUserToView)
-
+app.use(express.json());
 
 
 
@@ -53,7 +56,9 @@ app.use(passUserToView)
 // Routes go here
 app.use('/auth',authController)
 app.use('/',indexController)
-
+app.use('/movies',moviesController)
+app.use('/bookings',bookingsController)
+app.use('/reviews',reviewsController)
 
 
 
