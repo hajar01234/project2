@@ -1,13 +1,20 @@
-<nav>
-    
-    <a href="/">Homepage</a>
-    <% if (user){ %>
-    <a href="/auth/sign-out">Logout</a>
+<nav class="navbar">
+    <a href="/" class="navbar-logo">🎟️ CineBook</a>
+    <div class="navbar-links">
+        <a href="/">CineBook</a>
+        <a href="/movies">Movies</a>
+        <% if (user) { %>
+            <a href="/bookings/my-bookings">My Bookings</a>
+            <a href="/reviews">Reviews</a>
+        <% } %>
+    </div>
 
-    <% } else{ %>
-    <a href="/auth/sign-up">Sign up</a>
-    <a href="/auth/sign-in">Login</a>
-
-    <% } %>
-    
+    <div class="navbar-auth">
+        <% if (user) { %>
+            <a href="/auth/sign-out" class="logout-btn">Logout</a>
+        <% } else { %>
+            <a href="/auth/sign-in" class="login-btn">Login</a>
+            <a href="/auth/sign-up" class="signup-btn">Sign Up</a>
+        <% } %>
+    </div>
 </nav>
