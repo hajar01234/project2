@@ -1,47 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= movie.title %></title>
+    <title>
+        <%= movie.title %>
+    </title>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
+
 <body>
+    <%- include('../partials/navbar') %>
+        <div class="movie-details">
 
-    <h1><%= movie.title %></h1>
+            <img src="<%= movie.poster %>" alt="<%= movie.title %>" class="movie-details-poster">
 
-    <img src="<%= movie.poster %>" alt="<%= movie.title %>" width="200">
+            <div class="movie-details-info">
 
-    <p><%= movie.description %></p>
+                <h1>
+                    <%= movie.title %>
+                </h1>
 
-    <p>Genre: <%= movie.genre %></p>
+                <p class="movie-description">
+                    <%= movie.description %>
+                </p>
 
-    <p>Duration: <%= movie.duration %> minutes</p>
+                <p><strong>Genre:</strong>
+                    <%= movie.genre %>
+                </p>
 
-    <p>Language: <%= movie.language %></p>
+                <p><strong>Duration:</strong>
+                    <%= movie.duration %> minutes
+                </p>
 
-    <p>Age Rating: <%= movie.agerating %></p>
+                <p><strong>Language:</strong>
+                    <%= movie.language %>
+                </p>
 
-    <p>Price: <%= movie.price %> BHD</p>
+                <p><strong>Age Rating:</strong>
+                    <%= movie.agerating %>
+                </p>
 
-    <p>Cast: <%= movie.cast.join(", ") %></p>
+                <p><strong>Price:</strong>
+                    <%= movie.price %> BHD
+                </p>
 
-    <h2>Showtimes</h2>
+                <p><strong>Cast:</strong>
+                    <%= movie.cast.join(", ") %></p>
 
-    <% movie.showtimes.forEach(showtime => { %>
+    </div>
 
-        <div>
-            <p>Date: <%= showtime.date.toDateString() %></p>
+</div>
 
-            <p>Time: <%= showtime.time %></p>
+    <div class=" showtimes-section">
 
-            <button>Select Showtime</button>
-        </div>
+                        <h2>Showtimes</h2>
 
-        <hr>
+                        <div class="showtimes-list">
 
-    <% }) %>
+                            <% movie.showtimes.forEach(showtime=> { %>
+                                <div class="showtime-card">
 
-    <a href="/movies">Back to Movies</a>
+                                    <p>
+                                        <strong>Date:</strong>
+                                        <%= showtime.date.toDateString() %>
+                                    </p>
 
+                                    <p>
+                                        <strong>Time:</strong>
+                                        <%= showtime.time %>
+                                    </p>
+
+                                    <a href="/bookings/new/<%= movie._id %>/<%= showtime._id %>">
+                                        <button type="button">Select Showtime</button>
+                                    </a>
+
+                                </div>
+
+                                <% }) %>
+
+                        </div>
+
+            </div>
+
+            <div class="back-to-movies">
+                <a href="/movies"> ⬅Back to Movies</a>
+            </div>
 </body>
+
 </html>
