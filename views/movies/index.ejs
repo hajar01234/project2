@@ -1,48 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Movies</title>
+    <title>All Movies - CineBook</title>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
+
 <body>
+    <%- include('../partials/navbar') %>
+        <h1 class="movies-title">All Movies</h1>
+        <% movies.forEach((movie, index)=> { %>
+            <div class="movie" <%=index===0 ? '' : 'hidden' %>>
+                <img src="<%= movie.poster %>" alt="<%= movie.title %>" width="150">
 
-    <h1>All Movies</h1>
+                <h2><%= movie.title %></h2>
 
-    <% movies.forEach((movie, index) => { %>
+                <p><%= movie.description %></p>
 
-        <div class="movie" style=" <%= index === 0 ? '' : 'display: none;' %>">
+                <% if (user) { %>
+                    <a href="/movies/<%= movie._id %>"><button>View Details</button></a>
+                <% } %>
 
-            <img src="<%= movie.poster %>" alt="<%= movie.title %>" width="150">
+            </div>
 
-            <h2><%= movie.title %></h2>
+            <% }) %>
+                <div class="movie-navigation">
+                    <button id="prevBtn">Previous</button>
+                    <button id="nextBtn">Next</button>
+                </div>
 
-            <p><%= movie.description %></p>
-
-            <p>Genre: <%= movie.genre %></p>
-
-            <p>Duration: <%= movie.duration %> minutes</p>
-
-            <p>Language: <%= movie.language %></p>
-
-            <p>Age Rating: <%= movie.agerating %></p>
-
-            <p>Price: <%= movie.price %> BHD</p>
-
-            <p>Cast: <%= movie.cast.join(", ") %></p>
-
-            <a href="/movies/<%= movie._id %>">
-    <button>View Details</button>
-</a>
-
-        </div>
-
-    <% }) %>
-
-    <button id="prevBtn">Previous</button>
-    <button id="nextBtn">Next</button>
-
-    <script src="/js/movies.js"></script>
+                <script src="/js/movies.js"></script>
 
 </body>
+
 </html>
