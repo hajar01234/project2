@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Booking</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <%- include('../partials/navbar') %>
+        <div class="edit-booking-container">
+            <div class="edit-booking-card">
+                <h1>Edit Booking</h1>
+
+                <h2>
+                    <%= booking.movie.title %>
+                </h2>
+
+                <h3>Select Showtime</h3>
+
+                <select id="showtime">
+                    <% booking.movie.showtimes.forEach(time=> { %>
+                        <option value="<%= time._id %>" <%=time._id.equals(booking.showtime) ? "selected" : "" %>>
+                            <%= time.date.toDateString() %> - <%= time.time %>
+                        </option>
+                        <% }) %>
+                </select>
+
+                <h3>Number of Tickets</h3>
+
+                <select id="ticketCount">
+                    <% for (let i=1; i <=10; i++) { %>
+                        <option value="<%= i %>" <%=i===booking.seats.length ? "selected" : "" %>>
+                            <%= i %>
+                        </option>
+                        <% } %>
+                </select>
+
+                <h3>Select Seats</h3>
+
+                <div id="seatMap">
+                    <% const rows="ABCDEFGHIJKLMNOPQRSTU" ; %>
+
+                        <% for (const row of rows) { %>
+                            <div>
+                                <strong>
+                                    <%= row %>
+                                </strong>
+
+                                <% for (let number=1; number <=26; number++) { %>
+                                    <% const seatNumber=row + String(number).padStart(2, "0" ); const
+                                        isBooked=bookedSeats.includes(seatNumber); %>
+
+                                        <button type="button" class="seat" data-seat="<%= seatNumber %>" <%=isBooked
+                                            ? "disabled" : "" %>
+                                            >
+                                                <%= String(number).padStart(2, "0" ) %>
+                                        </button>
+
+                                        <% } %>
+                            </div>
+                            <% } %>
+                </div>
+
+                <h3>Selected Seats: <span id="selectedSeats">None</span></h3>
+
+                <p>Price per Ticket: <%= booking.movie.price %> BHD</p>
+
+                <h3>Total Price: <span id="totalPrice"></span> BHD</h3>
+
+                <button type="button" id="saveBooking" class="save-booking-btn" disabled>
+                    Save Changes
+                </button>
+
+                <a href="/bookings/<%= booking._id %>" class="cancel-edit-link"> Cancel Editing </a>
+
+            </div>
+        </div>
+        <div id="bookingData" data-seats="<%= booking.seats.join(',') %>" data-price="<%= booking.movie.price %>"
+            hidden>
+        </div>
+
+        <div id="updatePopup" class="update-popup" hidden>
+            <div class="update-popup-card">
+                <h2>Booking Updated Successfully! 🎉</h2>
+                <p>Your booking changes have been saved.</p>
+
+                <button type="button" id="doneButton">Done</button>
+            </div>
+        </div>
+
+        <script>
+            const ticketCount = document.querySelector("#ticketCount");
+            const showtimeSelect = document.querySelector("#showtime");
+            const originalShowtimeId = showtimeSelect.value;
+            const seats = document.querySelectorAll(".seat");
+            const selectedSeatsText = document.querySelector("#selectedSeats");
+            const totalPrice = document.querySelector("#totalPrice");
+            const saveBooking = document.querySelector("#saveBooking");
+
+            const bookingData = document.querySelector("#bookingData");
+            const ticketPrice = Number(bookingData.dataset.price);
+
+            let selectedSeats = bookingData.dataset.seats.split(",").filter(Boolean);
+            const originalSeats = [...selectedSeats];
+            const originalTicketCount = Number(ticketCount.value);
+            function hasChanges() {
+    let seatsChanged = false;
+
+    if (selectedSeats.length !== originalSeats.length) {
+        seatsChanged = true;
+    } else {
+        for (let seat of selectedSeats) {
+            if (!originalSeats.includes(seat)) {
+                seatsChanged = true;
+                break;
+            }
+        }
+    }
+
+    let showtimeChanged = false;
+
+    if (showtimeSelect.value !== originalShowtimeId) {
+        showtimeChanged = true;
+    }
+
+    let ticketCountChanged = false;
+
+    if (Number(ticketCount.value) !== originalTicketCount) {
+        ticketCountChanged = true;
+    }
+
+    return seatsChanged || showtimeChanged || ticketCountChanged;
+}
+
+            function updatePage() {
+                const count = Number(ticketCount.value);
+
+                selectedSeatsText.textContent =
+                    selectedSeats.length ? selectedSeats.join(", ") : "None";
+
+                totalPrice.textContent = (count * ticketPrice).toFixed(3);
+
+                saveBooking.disabled =
+                    selectedSeats.length !== count || !hasChanges();
+            }
+
+            seats.forEach(seat => {
+                if (selectedSeats.includes(seat.dataset.seat)) {
+                    seat.classList.add("selected");
+                }
+
+                seat.addEventListener("click", () => {
+                    if (seat.disabled) return;
+                    const seatNumber = seat.dataset.seat;
+                    const limit = Number(ticketCount.value);
+
+                    if (selectedSeats.includes(seatNumber)) {
+                        selectedSeats = selectedSeats.filter(s => s !== seatNumber);
+                        seat.classList.remove("selected");
+                    } else if (selectedSeats.length < limit) {
+                        selectedSeats.push(seatNumber);
+                        seat.style.backgroundColor = "gold";
+                    }
+
+                    updatePage();
+                });
+            });
+            ticketCount.addEventListener("change", () => {
+                const count = Number(ticketCount.value);
+
+                if (selectedSeats.length > count) {
+                    selectedSeats = selectedSeats.slice(0, count);
+                }
+
+                seats.forEach(seat => {
+                    if (seat.disabled) return;
+
+                    seat.classList.toggle(
+                        "selected",
+                        selectedSeats.includes(seat.dataset.seat)
+                    );
+                });
+
+                updatePage();
+            });
+
+            updatePage();
+            saveBooking.addEventListener("click", async () => {
+
+                const showtimeId = document.querySelector("#showtime").value;
+
+                saveBooking.disabled = true;
+
+                try {
+                    const response = await fetch(
+                        "/bookings/<%= booking._id %>",
+                        {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                showtimeId: showtimeId,
+                                seats: selectedSeats
+                            })
+                        }
+                    );
+
+                    const result = await response.text();
+
+                    if (response.ok && result === "Booking Updated!") {
+
+                        const updatePopup = document.querySelector("#updatePopup");
+                        updatePopup.hidden = false;
+                        document.querySelector("#doneButton").onclick = () => {
+                            window.location.href = "/bookings/<%= booking._id %>";
+                        };
+
+                    } else {
+                        alert(result);
+                    }
+
+                } catch (error) {
+                    alert("Something went wrong. Please try again.");
+                }
+
+                updatePage();
+            });
+
+            showtimeSelect.addEventListener("change", async () => {
+                const showtimeId = showtimeSelect.value;
+
+                saveBooking.disabled = true;
+
+                seats.forEach(seat => {
+                    seat.disabled = true;
+                });
+
+                try {
+                    const response = await fetch(
+                        `/bookings/<%= booking._id %>/booked-seats/${showtimeId}`
+                    );
+
+                    if (!response.ok) {
+                        return new Error("Could not load seats");
+                    }
+
+                    const data = await response.json();
+                    const bookedSeats = data.bookedSeats;
+                    selectedSeats = selectedSeats.filter(
+                        seat => !bookedSeats.includes(seat)
+                    );
+                    seats.forEach(seat => {
+                        const seatNumber = seat.dataset.seat;
+
+                        if (bookedSeats.includes(seatNumber)) {
+                            seat.disabled = true;
+                            seat.classList.remove("selected");
+                        } else {
+                            seat.disabled = false;
+                            seat.classList.toggle(
+                                "selected",
+                                selectedSeats.includes(seatNumber)
+                            );
+                        }
+                    });
+
+                    updatePage();
+
+                } catch (error) {
+                    alert("Could not load available seats. Please try again.");
+                }
+            });
+
+
+        </script>
+
+</body>
+
+</html>
