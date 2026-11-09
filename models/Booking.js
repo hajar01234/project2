@@ -3,21 +3,26 @@ const mongoose = require("mongoose");
 const bookingSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Booking",
+    ref: "User",
   },
   movie: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Movies",
   },
   status:{
-     type: String, enum: ['Confirmed', 'cancelled']
+     type: String, enum: ['Confirmed', 'cancelled'],
+     default: 'Confirmed'
   },
-  seat: {
-    type: String,
+  seats: {
+    type: [String],
   },
   totalPrice: {
     type: Number,
   },
+  showtime: {
+  type: mongoose.Schema.Types.ObjectId,
+  required: true
+},
   
 
 }, {timestamps: true});
