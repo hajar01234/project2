@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Seats</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <%- include('../partials/navbar') %>
+
+        <h1 class="seats-title">Select Your Seats 🎟️</h1>
+
+        <div class="ticket-selection">
+            <label for="ticketCount">Number of Tickets</label>
+
+            <select id="ticketCount">
+                <% for (let i=1; i <=10; i++) { %>
+                    <option value="<%= i %>">
+                        <%= i %>
+                    </option>
+                    <% } %>
+            </select>
+        </div>
+
+        <h2 class="choose-seats-title">Choose Your Seats</h2>
+
+        <div id="seatMap">
+
+            <% const rows="ABCDEFGHIJKLMNOPQRSTU" ; %>
+
+                <% for (let row of rows) { %>
+
+                    <div>
+                        <strong>
+                            <%= row %>
+                        </strong>
+
+                        <% for (let number=1; number <=26; number++) { %>
+
+                            <% const seatNumber=row + String(number).padStart(2, "0" ); const
+                                isBooked=bookedSeats.includes(seatNumber); %>
+
+                                <button type="button" class="seat" data-seat="<%= seatNumber %>" <%=isBooked
+                                    ? "disabled" : "" %>
+                                    >
+                                    <%= String(number).padStart(2, "0" ) %>
+                                </button>
+
+                                <% } %>
+
+                    </div>
+
+                    <% } %>
+
+        </div>
+
+        <h3>
+            Selected Seats:
+            <span id="selectedSeats">None</span>
+        </h3>
+
+        <div class="booking-summary">
+
+            <h2>Booking Summary</h2>
+
+            <p>Movie: <%= movie.title %>
+            </p>
+            <p>Showtime: <%= showtime.time %>
+            </p>
+            <p>Number of Tickets: <span id="numberOfTickets">1</span></p>
+            <p>Price per Ticket: <%= movie.price %> BHD</p>
+
+            <h3>
+                Total Price:
+                <span id="totalPrice">
+                    <%= Number(movie.price).toFixed(3) %>
+                </span>
+                BHD
+            </h3>
+
+            <button type="button" id="confirmBooking" disabled>
+                Confirm Booking
+            </button>
+
+        </div>
+
+        <div id="ticketPrice" data-price="<%= movie.price %>" hidden>
+
+            <div id="bookingPopup" class="booking-popup">
+
+                <div class="booking-popup-content">
+
+                    <h2>Booking Confirmed!</h2>
+
+                    <p>Movie: <%= movie.title %>
+                    </p>
+
+                    <p>Showtime: <%= showtime.time %>
+                    </p>
+
+                    <p>
+                        Seats:
+                        <span id="popupSeats"></span>
+                    </p>
+
+                    <p>
+                        Total:
+                        <span id="popupTotal"></span>
+                        BHD
+                    </p>
+
+                    <button type="button" id="closePopup">Done</button>
+
+                </div>
+
+            </div>
+            <script>
+
+                const ticketCount = document.querySelector("#ticketCount");
+                const seats = document.querySelectorAll(".seat");
+                const selectedSeatsText = document.querySelector("#selectedSeats");
+
+                const numberOfTickets = document.querySelector("#numberOfTickets");
+                const totalPrice = document.querySelector("#totalPrice");
+                const confirmBooking = document.querySelector("#confirmBooking");
+
+                const ticketPrice = Number(
+                    document.querySelector("#ticketPrice").dataset.price
+                );
+
+                const bookingPopup = document.querySelector("#bookingPopup");
+                const closePopup = document.querySelector("#closePopup");
+
+                let selectedSeats = [];
+                let isSubmitting = false;
+
+                function updateBookingSummary() {
+
+                    const count = Number(ticketCount.value);
+
+                    numberOfTickets.textContent = count;
+
+                    totalPrice.textContent = (count * ticketPrice).toFixed(3);
+
+                    confirmBooking.disabled =
+                        isSubmitting || selectedSeats.length !== count;
+
+                }
+
+                seats.forEach(seat => {
+
+                    seat.addEventListener("click", () => {
+
+                        if (seat.disabled || isSubmitting) {
+                            return;
+                        }
+
+                        const seatNumber = seat.dataset.seat;
+                        const limit = Number(ticketCount.value);
+
+                        if (selectedSeats.includes(seatNumber)) {
+
+                            selectedSeats = selectedSeats.filter(
+                                s => s !== seatNumber
+                            );
+
+                            seat.classList.remove("selected");
+
+                        } else if (selectedSeats.length < limit) {
+
+                            selectedSeats.push(seatNumber);
+
+                            seat.classList.add("selected");
+
+                        }
+
+                        if (selectedSeats.length > 0) {
+                            selectedSeatsText.textContent = selectedSeats.join(", ");
+                        } else {
+                            selectedSeatsText.textContent = "None";
+                        }
+
+                        updateBookingSummary();
+
+                    });
+
+                });
+
+                ticketCount.addEventListener("change", () => {
+
+                    if (isSubmitting) {
+                        return;
+                    }
+
+                    selectedSeats = [];
+
+                    seats.forEach(seat => {
+                        seat.classList.remove("selected");
+                    });
+
+                    selectedSeatsText.textContent = "None";
+
+                    updateBookingSummary();
+
+                });
+
+                confirmBooking.addEventListener("click", async () => {
+
+                    if (isSubmitting) {
+                        return;
+                    }
+
+                    if (selectedSeats.length !== Number(ticketCount.value)) {
+                        return;
+                    }
+
+                    isSubmitting = true;
+                    updateBookingSummary();
+
+                    try {
+
+                        const response = await fetch("/bookings", {
+
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+
+                            body: JSON.stringify({
+
+                                movieId: "<%= movie._id %>",
+                                showtimeId: "<%= showtime._id %>",
+                                seats: selectedSeats
+
+                            })
+
+                        });
+
+                        const result = await response.text();
+
+                        if (response.ok && result === "Booking Confirmed!") {
+
+                            document.querySelector("#popupSeats").textContent =
+                                selectedSeats.join(", ");
+
+                            document.querySelector("#popupTotal").textContent =
+                                totalPrice.textContent;
+
+                            bookingPopup.style.display = "flex";
+
+                        } else {
+
+                            alert(result);
+
+                            isSubmitting = false;
+                            updateBookingSummary();
+
+                        }
+
+                    } catch (error) {
+
+                        alert("Something went wrong. Please try again.");
+
+                        isSubmitting = false;
+                        updateBookingSummary();
+
+                    }
+
+                });
+                closePopup.addEventListener("click", () => {
+
+                    bookingPopup.style.display = "none";
+
+                    window.location.href = "/movies/<%= movie._id %>";
+
+                });
+                updateBookingSummary();
+
+            </script>
+
+</body>
+
+</html>
