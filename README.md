@@ -13,7 +13,10 @@ The application is designed for a single cinema, providing a simple and user-fri
 
 
 ## Screenshots
-
+![Home Page](image.png)
+![Movies Page](image-1.png)
+![My Bookings](image-2.png)
+![Reviews](image-3.png)
 
 ## Technologies Used
 
@@ -57,6 +60,21 @@ The application is designed for a single cinema, providing a simple and user-fri
 
 
 ## Features
+* User Authentication: Users can sign up, sign in, and sign out.
+
+* Browse Movies: View available movies and their details.
+
+* Movie Showtimes: Select a showtime for a movie.
+
+* Seat Selection: Choose available seats before booking.
+
+* Ticket Booking: Book one or more tickets and view the total price.
+
+* Booking Management: View, edit, and cancel bookings.
+
+* Movie Reviews: Add, edit, and delete movie reviews.
+
+* Booking Confirmation: Display a confirmation popup after booking.
 
 
 
